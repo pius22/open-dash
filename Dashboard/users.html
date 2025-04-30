@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Management - ResourceHub</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #ffb800;
+        --secondary-color: #1e1e1e;
+        --accent-color: #6c63ff;
+        --background-color: #fdfdfd;
+        --cta-color: #ff6b00;
+      }
+
+      body {
+        background-color: #f5f7fa;
+        font-family: "Inter", sans-serif;
+      }
+
+      .sidebar {
+        width: 280px;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        background-color: var(--background-color);
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
+        z-index: 1000;
+        transition: transform 0.3s ease;
+        z-index: 1030;
+      }
+
+      .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        transition: margin-left 0.3s ease;
+      }
+
+      .sidebar-brand {
+        padding: 1.5rem;
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1.5rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .sidebar-menu {
+        padding: 1rem 0;
+      }
+
+      .menu-item {
+        padding: 0.8rem 1.5rem;
+        color: var(--secondary-color);
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .menu-item:hover,
+      .menu-item.active {
+        background-color: rgba(108, 99, 255, 0.1);
+        color: var(--accent-color);
+      }
+
+      .menu-item i {
+        width: 24px;
+        margin-right: 0.8rem;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+      }
+
+      .top-bar {
+        background: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        border-radius: 15px;
+      }
+
+      .content-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .status-badge {
+        padding: 0.35rem 0.65rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+      }
+
+      .status-active {
+        background-color: rgba(25, 135, 84, 0.1);
+        color: #198754;
+      }
+
+      .status-inactive {
+        background-color: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+      }
+
+      .status-suspended {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+      }
+
+      .action-btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin: 0 0.2rem;
+      }
+
+      .hamburger-btn {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--secondary-color);
+        font-size: 1.5rem;
+        padding: 0.5rem;
+        cursor: pointer;
+      }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1020;
+      }
+
+      @media (max-width: 991px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .hamburger-btn {
+          display: block;
+        }
+
+        .overlay.show {
+          display: block;
+        }
+
+        .content-card {
+          padding: 1rem;
+          overflow-x: auto;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .main-content {
+          padding: 1rem;
+        }
+
+        .top-bar {
+          padding: 0.8rem 1rem;
+        }
+
+        .user-avatar {
+          width: 32px;
+          height: 32px;
+        }
+
+        .action-btn {
+          width: 28px;
+          height: 28px;
+          margin: 0 0.1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-brand">ResourceHub</div>
+      <div class="sidebar-menu">
+        <a href="index.html" class="menu-item">
+          <i class="fas fa-home"></i>
+          Dashboard
+        </a>
+        <a href="users.html" class="menu-item active">
+          <i class="fas fa-users"></i>
+          User Management
+        </a>
+        <a href="resources.html" class="menu-item">
+          <i class="fas fa-file-alt"></i>
+          Resources
+        </a>
+        <a href="uploads.html" class="menu-item">
+          <i class="fas fa-upload"></i>
+          Upload Management
+        </a>
+        <a href="analytics.html" class="menu-item">
+          <i class="fas fa-chart-line"></i>
+          Analytics
+        </a>
+        <a href="categories.html" class="menu-item">
+          <i class="fas fa-tags"></i>
+          Categories
+        </a>
+        <a href="reports.html" class="menu-item">
+          <i class="fas fa-flag"></i>
+          Reports
+        </a>
+        <a href="settings.html" class="menu-item">
+          <i class="fas fa-cog"></i>
+          Settings
+        </a>
+        <a href="profile.html" class="menu-item">
+          <i class="fas fa-user"></i>
+          Profile
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Bar -->
+      <div class="top-bar d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <button class="hamburger-btn me-3">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h4 class="mb-0">User Management</h4>
+        </div>
+        <div class="d-flex align-items-center">
+          <button
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#addUserModal"
+          >
+            <i class="fas fa-plus me-2"></i>Add New User
+          </button>
+        </div>
+      </div>
+
+      <!-- Users Table Card -->
+      <div class="content-card">
+        <div class="table-responsive">
+          <table id="usersTable" class="table table-hover">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined Date</th>
+                <th>Resources</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img
+                      src="https://i.pravatar.cc/150?img=1"
+                      alt="User"
+                      class="user-avatar me-3"
+                    />
+                    <div>
+                      <div class="fw-medium">John Doe</div>
+                      <small class="text-muted">@johndoe</small>
+                    </div>
+                  </div>
+                </td>
+                <td>john.doe@example.com</td>
+                <td>Content Creator</td>
+                <td><span class="status-badge status-active">Active</span></td>
+                <td>Apr 15, 2025</td>
+                <td>12</td>
+                <td>
+                  <button class="btn btn-light action-btn" title="Edit">
+                    <i class="fas fa-edit text-primary"></i>
+                  </button>
+                  <button class="btn btn-light action-btn" title="Suspend">
+                    <i class="fas fa-ban text-warning"></i>
+                  </button>
+                  <button class="btn btn-light action-btn" title="Delete">
+                    <i class="fas fa-trash text-danger"></i>
+                  </button>
+                </td>
+              </tr>
+              <!-- More user rows... -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add New User</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addUserForm">
+              <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Role</label>
+                <select class="form-select">
+                  <option value="user">Regular User</option>
+                  <option value="creator">Content Creator</option>
+                  <option value="moderator">Moderator</option>
+                  <option value="admin">Administrator</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" required />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button type="submit" form="addUserForm" class="btn btn-primary">
+              Add User
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $("#usersTable").DataTable({
+          pageLength: 10,
+          language: {
+            search: "",
+            searchPlaceholder: "Search users...",
+          },
+          responsive: true,
+        });
+
+        // Handle sidebar toggle
+        $(".hamburger-btn").click(function () {
+          $(".sidebar").toggleClass("show");
+          $(".overlay").toggleClass("show");
+        });
+
+        // Handle overlay click
+        $(".overlay").click(function () {
+          $(".sidebar").removeClass("show");
+          $(".overlay").removeClass("show");
+        });
+
+        // Handle window resize
+        $(window).resize(function () {
+          if ($(window).width() > 991) {
+            $(".sidebar").removeClass("show");
+            $(".overlay").removeClass("show");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

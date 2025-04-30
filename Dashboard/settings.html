@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings - ResourceHub</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #ffb800;
+        --secondary-color: #1e1e1e;
+        --accent-color: #6c63ff;
+        --background-color: #fdfdfd;
+        --cta-color: #ff6b00;
+      }
+
+      body {
+        background-color: #f5f7fa;
+        font-family: "Inter", sans-serif;
+      }
+
+      .sidebar {
+        width: 280px;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        background-color: var(--background-color);
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
+        z-index: 1000;
+        transition: transform 0.3s ease;
+      }
+
+      .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        transition: margin-left 0.3s ease;
+      }
+
+      .sidebar-brand {
+        padding: 1.5rem;
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1.5rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .sidebar-menu {
+        padding: 1rem 0;
+      }
+
+      .menu-item {
+        padding: 0.8rem 1.5rem;
+        color: var(--secondary-color);
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .menu-item:hover,
+      .menu-item.active {
+        background-color: rgba(108, 99, 255, 0.1);
+        color: var(--accent-color);
+      }
+
+      .menu-item i {
+        width: 24px;
+        margin-right: 0.8rem;
+      }
+
+      .top-bar {
+        background: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        border-radius: 15px;
+      }
+
+      .content-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+      }
+
+      .settings-nav {
+        width: 240px;
+        background: white;
+        border-radius: 15px;
+        padding: 1rem;
+        position: sticky;
+        top: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .settings-nav-item {
+        padding: 0.8rem 1rem;
+        color: var(--secondary-color);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        margin-bottom: 0.5rem;
+      }
+
+      .settings-nav-item:hover,
+      .settings-nav-item.active {
+        background-color: rgba(108, 99, 255, 0.1);
+        color: var(--accent-color);
+      }
+
+      .settings-nav-item i {
+        width: 20px;
+        margin-right: 0.8rem;
+      }
+
+      .color-preview {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-block;
+        margin-right: 0.5rem;
+        cursor: pointer;
+        border: 2px solid transparent;
+      }
+
+      .color-preview.active {
+        border-color: var(--accent-color);
+      }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1020;
+      }
+
+      .hamburger-btn {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--secondary-color);
+        font-size: 1.5rem;
+        padding: 0.5rem;
+        cursor: pointer;
+      }
+
+      @media (max-width: 991px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .hamburger-btn {
+          display: block;
+        }
+
+        .overlay.show {
+          display: block;
+        }
+
+        .content-card {
+          padding: 1rem;
+        }
+
+        .settings-nav {
+          position: relative;
+          width: 100%;
+          margin-bottom: 1rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .main-content {
+          padding: 1rem;
+        }
+
+        .top-bar {
+          padding: 0.8rem 1rem;
+        }
+
+        .form-group {
+          margin-bottom: 1rem;
+        }
+
+        .btn-group {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .btn-group .btn {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-brand">ResourceHub</div>
+      <div class="sidebar-menu">
+        <a href="index.html" class="menu-item">
+          <i class="fas fa-home"></i>
+          Dashboard
+        </a>
+        <a href="users.html" class="menu-item">
+          <i class="fas fa-users"></i>
+          User Management
+        </a>
+        <a href="resources.html" class="menu-item">
+          <i class="fas fa-file-alt"></i>
+          Resources
+        </a>
+        <a href="uploads.html" class="menu-item">
+          <i class="fas fa-upload"></i>
+          Upload Management
+        </a>
+        <a href="analytics.html" class="menu-item">
+          <i class="fas fa-chart-line"></i>
+          Analytics
+        </a>
+        <a href="categories.html" class="menu-item">
+          <i class="fas fa-tags"></i>
+          Categories
+        </a>
+        <a href="reports.html" class="menu-item">
+          <i class="fas fa-flag"></i>
+          Reports
+        </a>
+        <a href="settings.html" class="menu-item active">
+          <i class="fas fa-cog"></i>
+          Settings
+        </a>
+        <a href="profile.html" class="menu-item">
+          <i class="fas fa-user"></i>
+          Profile
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Bar -->
+      <div class="top-bar d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <button class="hamburger-btn me-3">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h4 class="mb-0">Settings</h4>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Settings Navigation -->
+        <div class="col-md-3">
+          <div class="settings-nav">
+            <a href="#general" class="settings-nav-item active">
+              <i class="fas fa-sliders-h"></i>
+              General
+            </a>
+            <a href="#appearance" class="settings-nav-item">
+              <i class="fas fa-palette"></i>
+              Appearance
+            </a>
+            <a href="#security" class="settings-nav-item">
+              <i class="fas fa-shield-alt"></i>
+              Security
+            </a>
+            <a href="#email" class="settings-nav-item">
+              <i class="fas fa-envelope"></i>
+              Email
+            </a>
+            <a href="#storage" class="settings-nav-item">
+              <i class="fas fa-database"></i>
+              Storage
+            </a>
+            <a href="#api" class="settings-nav-item">
+              <i class="fas fa-code"></i>
+              API Keys
+            </a>
+            <a href="#notifications" class="settings-nav-item">
+              <i class="fas fa-bell"></i>
+              Notifications
+            </a>
+            <a href="#backup" class="settings-nav-item">
+              <i class="fas fa-cloud-download-alt"></i>
+              Backup
+            </a>
+          </div>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="col-md-9">
+          <!-- General Settings -->
+          <div class="content-card" id="general">
+            <h5 class="mb-4">General Settings</h5>
+            <form>
+              <div class="mb-4">
+                <label class="form-label">Site Name</label>
+                <input type="text" class="form-control" value="ResourceHub" />
+              </div>
+              <div class="mb-4">
+                <label class="form-label">Site Description</label>
+                <textarea class="form-control" rows="3">
+A platform for sharing educational resources and materials.</textarea
+                >
+              </div>
+              <div class="mb-4">
+                <label class="form-label">Time Zone</label>
+                <select class="form-select">
+                  <option>UTC (00:00)</option>
+                  <option>Eastern Time (UTC-05:00)</option>
+                  <option>Pacific Time (UTC-08:00)</option>
+                  <option>Central European Time (UTC+01:00)</option>
+                </select>
+              </div>
+              <div class="mb-4">
+                <label class="form-label">File Upload Limits</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  value="50"
+                  placeholder="Maximum file size in MB"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Save Changes
+              </button>
+            </form>
+          </div>
+
+          <!-- Appearance Settings -->
+          <div class="content-card" id="appearance">
+            <h5 class="mb-4">Appearance Settings</h5>
+            <div class="mb-4">
+              <label class="form-label">Color Theme</label>
+              <div>
+                <span
+                  class="color-preview active"
+                  style="background-color: #6c63ff"
+                ></span>
+                <span
+                  class="color-preview"
+                  style="background-color: #ff6b00"
+                ></span>
+                <span
+                  class="color-preview"
+                  style="background-color: #198754"
+                ></span>
+                <span
+                  class="color-preview"
+                  style="background-color: #dc3545"
+                ></span>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Logo</label>
+              <div class="d-flex align-items-center">
+                <img
+                  src="../assets/img/headerimg.svg"
+                  alt="Logo"
+                  height="40"
+                  class="me-3"
+                />
+                <button class="btn btn-outline-primary">Change Logo</button>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Font Family</label>
+              <select class="form-select">
+                <option>Inter</option>
+                <option>Roboto</option>
+                <option>Open Sans</option>
+                <option>Poppins</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+
+          <!-- Security Settings -->
+          <div class="content-card" id="security">
+            <h5 class="mb-4">Security Settings</h5>
+            <div class="mb-4">
+              <label class="form-label d-flex justify-content-between">
+                Two-Factor Authentication
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" checked />
+                </div>
+              </label>
+              <small class="text-muted"
+                >Require 2FA for all admin accounts</small
+              >
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Session Timeout</label>
+              <select class="form-select">
+                <option>30 minutes</option>
+                <option>1 hour</option>
+                <option>2 hours</option>
+                <option>4 hours</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Password Requirements</label>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" checked />
+                <label class="form-check-label">Minimum 8 characters</label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" checked />
+                <label class="form-check-label">Include numbers</label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" checked />
+                <label class="form-check-label"
+                  >Include special characters</label
+                >
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+
+          <!-- Email Settings -->
+          <div class="content-card" id="email">
+            <h5 class="mb-4">Email Settings</h5>
+            <div class="mb-4">
+              <label class="form-label">SMTP Server</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="smtp.example.com"
+              />
+            </div>
+            <div class="mb-4">
+              <label class="form-label">SMTP Port</label>
+              <input type="number" class="form-control" placeholder="587" />
+            </div>
+            <div class="mb-4">
+              <label class="form-label">SMTP Username</label>
+              <input type="text" class="form-control" placeholder="username" />
+            </div>
+            <div class="mb-4">
+              <label class="form-label">SMTP Password</label>
+              <input
+                type="password"
+                class="form-control"
+                placeholder="••••••••"
+              />
+            </div>
+            <div class="mb-4">
+              <label class="form-label">From Email</label>
+              <input
+                type="email"
+                class="form-control"
+                placeholder="noreply@resourcehub.com"
+              />
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-outline-primary ms-2">
+              Test Connection
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Handle settings navigation
+        $(".settings-nav-item").click(function (e) {
+          e.preventDefault();
+          $(".settings-nav-item").removeClass("active");
+          $(this).addClass("active");
+
+          const target = $(this).attr("href");
+          $("html, body").animate(
+            {
+              scrollTop: $(target).offset().top - 20,
+            },
+            500
+          );
+        });
+
+        // Handle color theme selection
+        $(".color-preview").click(function () {
+          $(".color-preview").removeClass("active");
+          $(this).addClass("active");
+          // Add your color theme change logic here
+        });
+
+        // Handle sidebar toggle
+        $(".hamburger-btn").click(function () {
+          $(".sidebar").toggleClass("show");
+          $(".overlay").toggleClass("show");
+        });
+
+        // Handle overlay click
+        $(".overlay").click(function () {
+          $(".sidebar").removeClass("show");
+          $(".overlay").removeClass("show");
+        });
+
+        // Handle window resize
+        $(window).resize(function () {
+          if ($(window).width() > 991) {
+            $(".sidebar").removeClass("show");
+            $(".overlay").removeClass("show");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

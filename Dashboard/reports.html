@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports Management - ResourceHub</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #ffb800;
+        --secondary-color: #1e1e1e;
+        --accent-color: #6c63ff;
+        --background-color: #fdfdfd;
+        --cta-color: #ff6b00;
+      }
+
+      body {
+        background-color: #f5f7fa;
+        font-family: "Inter", sans-serif;
+      }
+
+      .sidebar {
+        width: 280px;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        background-color: var(--background-color);
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
+        z-index: 1000;
+        transition: transform 0.3s ease;
+      }
+
+      .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        transition: margin-left 0.3s ease;
+      }
+
+      .sidebar-brand {
+        padding: 1.5rem;
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1.5rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .sidebar-menu {
+        padding: 1rem 0;
+      }
+
+      .menu-item {
+        padding: 0.8rem 1.5rem;
+        color: var(--secondary-color);
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .menu-item:hover,
+      .menu-item.active {
+        background-color: rgba(108, 99, 255, 0.1);
+        color: var(--accent-color);
+      }
+
+      .menu-item i {
+        width: 24px;
+        margin-right: 0.8rem;
+      }
+
+      .top-bar {
+        background: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        border-radius: 15px;
+      }
+
+      .content-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .report-card {
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .report-card:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+
+      .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+
+      .reporter-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .reporter-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        margin-right: 0.8rem;
+      }
+
+      .badge-priority {
+        padding: 0.35rem 0.65rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+      }
+
+      .priority-high {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+      }
+
+      .priority-medium {
+        background-color: rgba(255, 184, 0, 0.1);
+        color: var(--primary-color);
+      }
+
+      .priority-low {
+        background-color: rgba(25, 135, 84, 0.1);
+        color: #198754;
+      }
+
+      .resource-preview {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+
+      .resource-preview img {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        object-fit: cover;
+      }
+
+      .filter-btn {
+        border: 1px solid #e9ecef;
+        background: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        color: var(--secondary-color);
+        transition: all 0.2s ease;
+      }
+
+      .filter-btn:hover,
+      .filter-btn.active {
+        background-color: var(--accent-color);
+        color: white;
+        border-color: var(--accent-color);
+      }
+
+      /* Mobile Responsive Styles */
+      .hamburger-btn {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--secondary-color);
+        font-size: 1.5rem;
+        padding: 0.5rem;
+        cursor: pointer;
+      }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1020;
+      }
+
+      @media (max-width: 991px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .hamburger-btn {
+          display: block;
+        }
+
+        .overlay.show {
+          display: block;
+        }
+
+        .content-card {
+          padding: 1rem;
+        }
+
+        .report-grid {
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 1rem;
+        }
+
+        .report-details {
+          flex-direction: column;
+        }
+
+        .report-details .resource-info {
+          margin-left: 0;
+          margin-top: 1rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .main-content {
+          padding: 1rem;
+        }
+
+        .top-bar {
+          padding: 0.8rem 1rem;
+        }
+
+        .report-card {
+          padding: 1rem;
+        }
+
+        .report-thumbnail {
+          width: 40px;
+          height: 40px;
+        }
+
+        .action-btn {
+          width: 28px;
+          height: 28px;
+          margin: 0 0.1rem;
+        }
+
+        .filter-buttons {
+          overflow-x: auto;
+          white-space: nowrap;
+          padding-bottom: 0.5rem;
+        }
+
+        .filter-btn {
+          font-size: 0.9rem;
+          padding: 0.4rem 0.8rem;
+        }
+      }
+
+      /* Scrollable Filter Buttons */
+      .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        padding-bottom: 0.5rem;
+      }
+
+      .filter-buttons::-webkit-scrollbar {
+        height: 4px;
+      }
+
+      .filter-buttons::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      .filter-buttons::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-brand">ResourceHub</div>
+      <div class="sidebar-menu">
+        <a href="index.html" class="menu-item">
+          <i class="fas fa-home"></i>
+          Dashboard
+        </a>
+        <a href="users.html" class="menu-item">
+          <i class="fas fa-users"></i>
+          User Management
+        </a>
+        <a href="resources.html" class="menu-item">
+          <i class="fas fa-file-alt"></i>
+          Resources
+        </a>
+        <a href="uploads.html" class="menu-item">
+          <i class="fas fa-upload"></i>
+          Upload Management
+        </a>
+        <a href="analytics.html" class="menu-item">
+          <i class="fas fa-chart-line"></i>
+          Analytics
+        </a>
+        <a href="categories.html" class="menu-item">
+          <i class="fas fa-tags"></i>
+          Categories
+        </a>
+        <a href="reports.html" class="menu-item active">
+          <i class="fas fa-flag"></i>
+          Reports
+        </a>
+        <a href="settings.html" class="menu-item">
+          <i class="fas fa-cog"></i>
+          Settings
+        </a>
+        <a href="profile.html" class="menu-item">
+          <i class="fas fa-user"></i>
+          Profile
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Bar -->
+      <div class="top-bar d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <button class="hamburger-btn me-3">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h4 class="mb-0">Reports Management</h4>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="filter-btn active">All Reports</button>
+          <button class="filter-btn">Content</button>
+          <button class="filter-btn">Users</button>
+          <button class="filter-btn">Comments</button>
+          <select class="form-select" style="width: auto">
+            <option value="all">All Priorities</option>
+            <option value="high">High Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="low">Low Priority</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Reports List -->
+      <div class="content-card">
+        <!-- High Priority Report -->
+        <div class="report-card">
+          <div class="report-header">
+            <div>
+              <span class="badge badge-priority priority-high mb-2"
+                >High Priority</span
+              >
+              <div class="reporter-info">
+                <img
+                  src="https://i.pravatar.cc/150?img=1"
+                  alt="Reporter"
+                  class="reporter-avatar"
+                />
+                <div>
+                  <div class="fw-medium">Sarah Johnson</div>
+                  <small class="text-muted">Reported 2 hours ago</small>
+                </div>
+              </div>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-check me-2"></i>Mark as Resolved</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-ban me-2"></i>Block Content</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-trash me-2"></i>Delete Report</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <h6>Inappropriate Content in Resource</h6>
+          <p class="text-muted">
+            The resource contains potentially harmful or inappropriate content
+            that violates community guidelines.
+          </p>
+          <div class="resource-preview d-flex align-items-center">
+            <img
+              src="https://source.unsplash.com/random/48x48"
+              alt="Resource"
+              class="me-3"
+            />
+            <div>
+              <div class="fw-medium">JavaScript Best Practices Guide</div>
+              <small class="text-muted">Uploaded by: John Doe</small>
+            </div>
+          </div>
+          <div class="mt-3">
+            <button class="btn btn-outline-primary btn-sm">
+              View Resource
+            </button>
+            <button class="btn btn-outline-danger btn-sm">Take Action</button>
+          </div>
+        </div>
+
+        <!-- Medium Priority Report -->
+        <div class="report-card">
+          <div class="report-header">
+            <div>
+              <span class="badge badge-priority priority-medium mb-2"
+                >Medium Priority</span
+              >
+              <div class="reporter-info">
+                <img
+                  src="https://i.pravatar.cc/150?img=2"
+                  alt="Reporter"
+                  class="reporter-avatar"
+                />
+                <div>
+                  <div class="fw-medium">Mike Wilson</div>
+                  <small class="text-muted">Reported 5 hours ago</small>
+                </div>
+              </div>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-check me-2"></i>Mark as Resolved</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-ban me-2"></i>Block User</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-trash me-2"></i>Delete Report</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <h6>Spam Comments</h6>
+          <p class="text-muted">
+            User is posting spam comments across multiple resources.
+          </p>
+          <div class="resource-preview d-flex align-items-center">
+            <img
+              src="https://i.pravatar.cc/150?img=3"
+              alt="User"
+              class="me-3 reporter-avatar"
+            />
+            <div>
+              <div class="fw-medium">SpamBot123</div>
+              <small class="text-muted">User Profile</small>
+            </div>
+          </div>
+          <div class="mt-3">
+            <button class="btn btn-outline-primary btn-sm">View Profile</button>
+            <button class="btn btn-outline-danger btn-sm">Take Action</button>
+          </div>
+        </div>
+
+        <!-- Low Priority Report -->
+        <div class="report-card">
+          <div class="report-header">
+            <div>
+              <span class="badge badge-priority priority-low mb-2"
+                >Low Priority</span
+              >
+              <div class="reporter-info">
+                <img
+                  src="https://i.pravatar.cc/150?img=4"
+                  alt="Reporter"
+                  class="reporter-avatar"
+                />
+                <div>
+                  <div class="fw-medium">Emma Davis</div>
+                  <small class="text-muted">Reported 1 day ago</small>
+                </div>
+              </div>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-check me-2"></i>Mark as Resolved</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-edit me-2"></i>Edit Resource</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#"
+                    ><i class="fas fa-trash me-2"></i>Delete Report</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+          <h6>Broken Resource Link</h6>
+          <p class="text-muted">
+            The download link for this resource appears to be broken.
+          </p>
+          <div class="resource-preview d-flex align-items-center">
+            <img
+              src="https://source.unsplash.com/random/48x48?design"
+              alt="Resource"
+              class="me-3"
+            />
+            <div>
+              <div class="fw-medium">UI Design Principles PDF</div>
+              <small class="text-muted">Uploaded by: Alex Thompson</small>
+            </div>
+          </div>
+          <div class="mt-3">
+            <button class="btn btn-outline-primary btn-sm">
+              View Resource
+            </button>
+            <button class="btn btn-outline-warning btn-sm">Fix Link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Handle filter buttons
+        $(".filter-btn").click(function () {
+          $(".filter-btn").removeClass("active");
+          $(this).addClass("active");
+          // Add your filtering logic here
+        });
+
+        // Handle sidebar toggle
+        $(".hamburger-btn").click(function () {
+          $(".sidebar").toggleClass("show");
+          $(".overlay").toggleClass("show");
+        });
+
+        // Handle overlay click
+        $(".overlay").click(function () {
+          $(".sidebar").removeClass("show");
+          $(".overlay").removeClass("show");
+        });
+
+        // Handle window resize
+        $(window).resize(function () {
+          if ($(window).width() > 991) {
+            $(".sidebar").removeClass("show");
+            $(".overlay").removeClass("show");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
